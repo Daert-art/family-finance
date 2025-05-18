@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: family-finance
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn family_finance.wsgi:application"
+    plan: free
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: family_finance.settings
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
