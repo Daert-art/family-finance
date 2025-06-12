@@ -4,16 +4,25 @@ from core.forms import TransactionForm
 from core.models.transaction import Transaction
 from core.models.category import Category
 from core.enums.category_type import CategoryType
+import datetime
 
 
 def transaction_list(request):
     all_transactions = Transaction.objects.all().order_by('-date')
     categories = Category.objects.all()
 
-    # фильтрация
+    # поточна дата
+    today = datetime.date.today()
+    current_month = today.month
+    current_year = today.year
+
+    # фільтрація
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     category_id = request.GET.get('category')
+
+    if not start_date and not end_date:
+        all_transactions = all_transactions.filter(date__year=current_year, date__month=current_month)
 
     if start_date:
         all_transactions = all_transactions.filter(date__gte=start_date)
@@ -22,11 +31,11 @@ def transaction_list(request):
     if category_id:
         all_transactions = all_transactions.filter(category_id=category_id)
 
-    # разделение по типу
+    # розділення по типу
     incomes = all_transactions.filter(category__type=CategoryType.INCOME)
     expenses = all_transactions.filter(category__type=CategoryType.EXPENSE)
 
-    # итоги
+    # підсумки
     total_income = incomes.aggregate(Sum('amount'))['amount__sum'] or 0
     total_expense = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
     balance = total_income - total_expense
