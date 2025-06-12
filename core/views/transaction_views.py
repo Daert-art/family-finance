@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from core.forms import TransactionForm
@@ -10,6 +11,7 @@ import datetime
 def transaction_list(request):
     all_transactions = Transaction.objects.all().order_by('-date')
     categories = Category.objects.all()
+    users = User.objects.all()
 
     # поточна дата
     today = datetime.date.today()
@@ -20,6 +22,7 @@ def transaction_list(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     category_id = request.GET.get('category')
+    paid_by = request.GET.get('paid_by')
 
     if not start_date and not end_date:
         all_transactions = all_transactions.filter(date__year=current_year, date__month=current_month)
@@ -30,6 +33,8 @@ def transaction_list(request):
         all_transactions = all_transactions.filter(date__lte=end_date)
     if category_id:
         all_transactions = all_transactions.filter(category_id=category_id)
+    if paid_by:
+        all_transactions = all_transactions.filter(paid_by_id=paid_by)
 
     # розділення по типу
     incomes = all_transactions.filter(category__type=CategoryType.INCOME)
@@ -44,9 +49,11 @@ def transaction_list(request):
         'incomes': incomes,
         'expenses': expenses,
         'categories': categories,
+        'users': users,
         'start_date': start_date,
         'end_date': end_date,
         'selected_category': int(category_id) if category_id else None,
+        'selected_paid_by': int(paid_by) if paid_by else None,
         'total_income': total_income,
         'total_expense': total_expense,
         'balance': balance,

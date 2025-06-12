@@ -22,7 +22,7 @@
             <label class="form-label">По дату</label>
             <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label">Категория</label>
             <select name="category" class="form-select">
                 <option value="">Все</option>
@@ -33,23 +33,35 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-md-3">
+            <label class="form-label">Кто платил</label>
+            <select name="paid_by" class="form-select">
+                <option value="">Все</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if user.id == selected_paid_by %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
         </div>
     </form>
 
+
     <!-- ДОХОДЫ -->
     <h3 class="mt-5">Доходы</h3>
     <table class="table table-bordered table-hover table-striped">
         <thead class="table-success">
-            <tr>
-                <th>Дата</th>
-                <th>Сумма</th>
-                <th>Категория</th>
-                <th>Платил</th>
-                <th>Участники</th>
-                <th>Описание</th>
-            </tr>
+        <tr>
+            <th>Дата</th>
+            <th>Сумма</th>
+            <th>Категория</th>
+            <th>Платил</th>
+            <th>Участники</th>
+            <th>Описание</th>
+        </tr>
         </thead>
         <tbody>
         {% for tx in incomes %}
@@ -66,7 +78,9 @@
                 <td>{{ tx.description }}</td>
             </tr>
         {% empty %}
-            <tr><td colspan="6" class="text-center">Нет доходов</td></tr>
+            <tr>
+                <td colspan="6" class="text-center">Нет доходов</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -75,14 +89,14 @@
     <h3 class="mt-5">Расходы</h3>
     <table class="table table-bordered table-hover table-striped">
         <thead class="table-danger">
-            <tr>
-                <th>Дата</th>
-                <th>Сумма</th>
-                <th>Категория</th>
-                <th>Платил</th>
-                <th>Участники</th>
-                <th>Описание</th>
-            </tr>
+        <tr>
+            <th>Дата</th>
+            <th>Сумма</th>
+            <th>Категория</th>
+            <th>Платил</th>
+            <th>Участники</th>
+            <th>Описание</th>
+        </tr>
         </thead>
         <tbody>
         {% for tx in expenses %}
@@ -99,7 +113,9 @@
                 <td>{{ tx.description }}</td>
             </tr>
         {% empty %}
-            <tr><td colspan="6" class="text-center">Нет расходов</td></tr>
+            <tr>
+                <td colspan="6" class="text-center">Нет расходов</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
