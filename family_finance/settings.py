@@ -81,11 +81,11 @@ WSGI_APPLICATION = 'family_finance.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://family_finance_db_user:iQrdI46s8wr3fBBGxxw5KKGMclaBEe4W@dpg-d0l20o3e5dus73c7em30-a.render.com/family_finance_db'
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://family_finance_db_user:iQrdI46s8wr3fBBGxxw5KKGMclaBEe4W@dpg-d0l20o3e5dus73c7em30-a.render.com/family_finance_db'
+#     )
+# }
 
 # DATABASES = {
 #     'default': {
@@ -94,6 +94,19 @@ DATABASES = {
 #     }
 # }
 
+if 'RENDER' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='postgresql://family_finance_db_user:iQrdI46s8wr3fBBGxxw5KKGMclaBEe4W@dpg-d0l20o3e5dus73c7em30-a.render.com/family_finance_db'
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -140,3 +153,8 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 🔐 Авторизация
+LOGIN_URL = '/login/'                # если пользователь не авторизован — редирект сюда
+LOGIN_REDIRECT_URL = '/'            # после успешного входа — редирект сюда
+LOGOUT_REDIRECT_URL = '/login/'    # после выхода — редирект сюда

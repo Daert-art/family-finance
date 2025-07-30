@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db.models import Sum
 from core.forms import TransactionForm
 from core.models.transaction import Transaction
@@ -7,7 +8,7 @@ from core.models.category import Category
 from core.enums.category_type import CategoryType
 import datetime
 
-
+@login_required
 def transaction_list(request):
     all_transactions = Transaction.objects.all().order_by('-date')
     categories = Category.objects.all()
@@ -60,7 +61,7 @@ def transaction_list(request):
     }
     return render(request, 'transactions/list.html', context)
 
-
+@login_required
 def transaction_create(request):
     if request.method == 'POST':
         form = TransactionForm(request.POST)
@@ -70,3 +71,32 @@ def transaction_create(request):
     else:
         form = TransactionForm()
     return render(request, 'transactions/create.html', {'form': form})
+
+# Редагування для адміністратора
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def transaction_update(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, instance=transaction)
+        if form.is_valid():
+            form.save()
+            return redirect('transaction_list')
+    else:
+        form = TransactionForm(instance=transaction)
+
+    return render(request, 'transactions/update.html', {'form': form, 'transaction': transaction})
+
+
+# Видалення транзакцій доступні лише для адміністратора
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def transaction_delete(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+
+    if request.method == 'POST':
+        transaction.delete()
+        return redirect('transaction_list')
+
+    return render(request, 'transactions/confirm_delete.html', {'transaction': transaction})
